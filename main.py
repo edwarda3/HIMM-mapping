@@ -96,10 +96,9 @@ if __name__ == "__main__":
 				point = (rob.navstack[i][1]*10,rob.navstack[i][0]*10)
 				pygame.draw.circle(screen,color,point,5)
 
-		for rank in range(-2,1):
+		for rank in range(-2,0):
 			if(rank in rob.candidates):
 				for point in rob.candidates[rank]:
-					color = (153, 102, 51)
 					if(rank==-2):
 						color = (255, 102, 0)
 					if(rank==-1):
