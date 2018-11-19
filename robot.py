@@ -28,6 +28,7 @@ class Robot:
 	def spin(self):
 		self.getNewRoute()
 
+	# Old move. Unused, but allows movement with a vector <vel, thetavel>
 	def move(self, vector, world):
 		magnitude = vector[0]
 		rads = vector[1]
@@ -44,6 +45,7 @@ class Robot:
 			self.xpos += xmove
 			self.ypos += ymove
 
+	#Generates a 4-connected map from the occupancy grid. Stored in a dict, where {(key=node): [list of connected nodes]}
 	def getMap(self):
 		for row in range(len(self.myMap)):
 			for col in range(len(self.myMap[row])):
@@ -63,6 +65,8 @@ class Robot:
 						if(not (row,col+1) in self.map[(row,col)]):
 							self.map[(row,col)].append((row,col+1))
 
+	#Calculcates the rank of a tile as defined in getNodeWithMostUnexplored.
+	#negative = more unexplored
 	def aggVal(self,node):
 		(row,col) = node
 		val = 0
@@ -76,21 +80,32 @@ class Robot:
 			val += self.myMap[row][col+1]
 		return val
 
+	# Finds a suitable node for the target of A*.
+	# The algorithm works in 3 steps:
+	#	 First, rank all the nodes with the number of adjacent unknown nodes next to them. Because unknowns are -1, the more negative the number, the higher rank.
+	# Using the highest ranked list with any nodes (up to -2, because -3 or -4 has a high probability of not having any connecting paths), find the closest node in that list using manhattan distance.
+	# If 0 is the highest rank, then just choose a random node.
+	# This function also features exclusion nodes. If the A* search could not find any path to the target, then it will call this function again and have that node excluded from the results.
 	def getNodeWithMostUnexplored(self,start,exclusion):
 		self.candidates = {}
+		#Iterate through the robot's map
 		for row in range(len(self.myMap)):
 			for col in range(len(self.myMap[row])):
+				# Only allow candidates if the tile is open and known.
 				if(self.myMap[row][col]<5 and self.myMap[row][col] >=0):
 					importance = self.aggVal((row,col))
 					if(not importance in self.candidates):
 						self.candidates[importance] = []
 					self.candidates[importance].append((row,col))
 
+		# Exclude nodes that were told to be unreachable.
 		for badnode in exclusion:
 			for i in range(-2,0):
 				if(i in self.candidates):
 					if(badnode in self.candidates[i]):
 						self.candidates[i].remove(badnode)
+
+		#Get the nearest node with the highest rank.
 		for i in range(-2,0):
 			if(i in self.candidates):
 				if(len(self.candidates[i]) > 0):
@@ -106,6 +121,7 @@ class Robot:
 					choice = shortestpoint
 					#print("New target: "+str(choice))
 					return choice, exclusion
+		#If 0 is the highest rank, just random.
 		if(not -1 in self.candidates and not -2 in self.candidates):
 			choice = random.choice(self.candidates[0])
 			#print("New target: "+str(choice))
@@ -114,11 +130,14 @@ class Robot:
 	def getCurPos(self):
 		return (int(self.ypos//10),int(self.xpos//10))
 
+	#Manhattan distance between @param origin, @param target
 	def aStarHeuristic(self,origin,target):
 		(y1,x1) = origin
 		(y2,x2) = target
 		return math.sqrt((x2-x1)**2+(y2-y1)**2)
 
+	# Implementation of A* search, copied from HW4, with one modification.
+	# This function allows a lost of nodes to exclude from searching, as they may not have a path to them. This allows A* to call itself with a new target in case it couldn't find the one given.
 	def astar(self,start,target, ex):
 		print("Finding a way from "+str((start)) + " to " + str((target)))
 		unvisited = []	# Contains the frontier, these nodes will have a estimated cost associated with them, which is the real cost that we found, + estimated cost from the heuristic. We will use a heapq, which is a priority queue implementation.
@@ -154,6 +173,8 @@ class Robot:
 		#print(str(backtrack))
 		return backtrack, cost, target
 
+	# Returns a path, in order, from the current position @param start, to the target position @param target.
+	# Uses a backtrack list from a graph search algorithm, in this case, A*
 	def sendPath(self,backtrack,cost,start,target):
 		#print("Getting path from "+str(target) +" to "+str(start))
 		traverse = target
@@ -165,6 +186,7 @@ class Robot:
 			traverse = backtrack[traverse]
 		return list
 
+	#Print functions...
 	def printMap(self,map):
 		s = ""
 		for point in map:
@@ -177,6 +199,8 @@ class Robot:
 			s += str(point) + ": " + str(dict[point]) + "\n"
 		return s
 
+	# A wrapper function to call other functions.
+	# Will Update the map, get a new target node, get a path between the current pos and target, and refine that backtrack list from A* into an actual list for navstack to use.
 	def getNewRoute(self):
 		print("---\nGetting a new route...\n\n")
 		self.getMap()
@@ -189,6 +213,9 @@ class Robot:
 		self.navstack = self.sendPath(backtrack,cost,curPos,target)
 		self.moveToPoint()
 
+	# An abstracted move function
+	# Moves some distance between two points, must be called iteratively, as to not block the pygame drawing.
+	# The points are stored in navstack, and once its empty, will call for a new set of points.
 	def moveToPoint(self):
 		(y,x) = (self.ypos,self.xpos)
 		if(len(self.navstack) > 0):
