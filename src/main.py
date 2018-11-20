@@ -9,6 +9,8 @@ import sys
 import time
 import random
 import math
+import argparse
+import os
 
 import world
 import robot
@@ -41,6 +43,7 @@ def getMapFromFile(filepath):
 
 	#boilerplace read file
 	print("Reading file... ", end = '')
+	print(filepath)
 	try:
 		myfile = open(filepath,'r')
 	except IOError:
@@ -104,8 +107,14 @@ def drawLegend(screen,font):
 	#message_display(screen,"© Alex Edwards, 2018", font, wWidth+s_legend-170,wHeight-20)
 
 if __name__ == "__main__":
+	parser = argparse.ArgumentParser()
+	parser.add_argument("worldfile", help="World csv file. You can generate one using the worlds/makeMap.py program!")
+	args=parser.parse_args()
+	wfile = args.worldfile
+	cwd = os.getcwd()
+
 	w = world.World(wWidth,wHeight)
-	w.addObstaclesFromOccGrid(getMapFromFile("maze.csv"))
+	w.addObstaclesFromOccGrid(getMapFromFile(cwd+"/"+wfile))
 	rob = robot.Robot(10,10,0,w.x_bound,w.y_bound,perfectRobot)
 	v = [0,0] # <v,theta>
 	
