@@ -19,6 +19,11 @@ wWidth = 800
 wHeight = 600
 s_legend = 300
 
+settings = {"map-edges": True,
+			"path": True,
+			"target": True,
+			"target-candidates": True}
+
 # If perfectRobot is true, then the sensor data has no error.
 perfectRobot = False
 
@@ -71,7 +76,7 @@ def message_display(screen,text,font,x,y):
     screen.blit(TextSurf, TextRect)
 
 def drawLegend(screen,font):
-	leftOffset = wWidth+30
+	leftOffset = wWidth+60
 	topOffset = 100
 
 	bigfont = pygame.font.SysFont('Ariel', 40)
@@ -87,21 +92,26 @@ def drawLegend(screen,font):
 	message_display(screen,"Darker = Wall", font, leftOffset,topOffset+80)
 	
 	pygame.draw.line(screen,(20,50,160),(leftOffset,topOffset+125),(leftOffset+20,topOffset+125),1)
+	message_display(screen,"(M)", font, leftOffset-30,topOffset+120)
 	message_display(screen,"Map Edge", font, leftOffset+40,topOffset+120)
 
 	pygame.draw.line(screen,(20,160,50),(leftOffset,topOffset+185),(leftOffset+20,topOffset+185),1)
+	message_display(screen,"(P)", font, leftOffset-30,topOffset+180)
 	message_display(screen,"Active Path", font, leftOffset+40,topOffset+180)
 
 	pygame.draw.circle(screen,(160,20,50),(leftOffset+3,topOffset+245),6)
+	message_display(screen,"(T)", font, leftOffset-30,topOffset+240)
 	message_display(screen,"Active Target", font, leftOffset+20,topOffset+240)
+
+	message_display(screen,"(C)", font, leftOffset-30,topOffset+320)
 
 	pygame.draw.circle(screen,(255, 102, 0),(leftOffset+3,topOffset+305),6)
 	message_display(screen,">2 Adjacent Unknowns", font, leftOffset+20,topOffset+300)
 	message_display(screen,"Candidate for target", font, leftOffset+25,topOffset+315)
 
 	pygame.draw.circle(screen,(255, 153, 0),(leftOffset+3,topOffset+365),6)
-	message_display(screen,"1 Adjacent Unknown", font, leftOffset+20,topOffset+360)
-	message_display(screen,"Candidate for target", font, leftOffset+25,topOffset+375)
+	message_display(screen,"1 Adjacent Unknown", font, leftOffset+20,topOffset+340)
+	message_display(screen,"Candidate for target", font, leftOffset+25,topOffset+355)
 
 
 	#message_display(screen,"© Alex Edwards, 2018", font, wWidth+s_legend-170,wHeight-20)
@@ -133,21 +143,22 @@ if __name__ == "__main__":
 				pygame.quit() 
 				sys.exit()
 
-			""" #Arrow key movement simply changes the velocity vector.
 			if(event.type == pygame.KEYDOWN): 
-				if(event.key == pygame.K_UP):
-					v[0] = 3
-				if(event.key == pygame.K_LEFT):
-					v[1] = -.05
-				if(event.key == pygame.K_RIGHT):
-					v[1] = .05
-			if(event.type == pygame.KEYUP): 
-				if(event.key == pygame.K_UP):
-					v[0] = 0
-				if(event.key == pygame.K_LEFT):
-					v[1] = 0
-				if(event.key == pygame.K_RIGHT):
-					v[1] = 0 """
+				if(event.key == pygame.K_m):
+					settings["map-edges"] = not settings["map-edges"]
+				if(event.key == pygame.K_p):
+					settings["path"] = not settings["path"]
+				if(event.key == pygame.K_t):
+					settings["target"] = not settings["target"]
+				if(event.key == pygame.K_c):
+					settings["target-candidates"] = not settings["target-candidates"]
+				if(event.key == pygame.K_a):
+					boolean = (settings["map-edges"] or settings["map-edges"] or settings["target"] or settings["target-candidates"])
+					print(str(boolean))
+					settings["map-edges"] = not boolean
+					settings["path"] = not boolean
+					settings["target"] = not boolean
+					settings["target-candidates"] = not boolean
 
 		rob.moveToPoint()
 
@@ -165,33 +176,37 @@ if __name__ == "__main__":
 					color = (160,100,100)
 				pygame.draw.rect(screen,color,mapvis,0)
 
-		for key in rob.map:
-			for edge in rob.map[key]:
-				color = (20,50,160)
-				start = (key[1]*10,key[0]*10)
-				end = (edge[1]*10,edge[0]*10)
-				pygame.draw.line(screen,color,start,end,1)
+		if(settings["map-edges"]):
+			for key in rob.map:
+				for edge in rob.map[key]:
+					color = (20,50,160)
+					start = (key[1]*10,key[0]*10)
+					end = (edge[1]*10,edge[0]*10)
+					pygame.draw.line(screen,color,start,end,1)
 
 		for i in range(len(rob.navstack)):
 			if(i+1<len(rob.navstack)):
-				color = (20,160,50)
-				start = (rob.navstack[i][1]*10,rob.navstack[i][0]*10)
-				end = (rob.navstack[i+1][1]*10,rob.navstack[i+1][0]*10)
-				pygame.draw.line(screen,color,start,end,2)
+				if(settings["path"]):
+					color = (20,160,50)
+					start = (rob.navstack[i][1]*10,rob.navstack[i][0]*10)
+					end = (rob.navstack[i+1][1]*10,rob.navstack[i+1][0]*10)
+					pygame.draw.line(screen,color,start,end,2)
 			else:
-				color = (160,20,50)
-				point = (rob.navstack[i][1]*10,rob.navstack[i][0]*10)
-				pygame.draw.circle(screen,color,point,5)
+				if(settings["target"]):
+					color = (160,20,50)
+					point = (rob.navstack[i][1]*10,rob.navstack[i][0]*10)
+					pygame.draw.circle(screen,color,point,5)
 
-		for rank in range(-2,0):
-			if(rank in rob.candidates):
-				for point in rob.candidates[rank]:
-					if(rank==-2):
-						color = (255, 102, 0)
-					if(rank==-1):
-						color = (255, 153, 0)
-					point = (point[1]*10,point[0]*10)
-					pygame.draw.circle(screen,color,point,3)
+		if(settings["target-candidates"]):
+			for rank in range(-2,0):
+				if(rank in rob.candidates):
+					for point in rob.candidates[rank]:
+						if(rank==-2):
+							color = (255, 102, 0)
+						if(rank==-1):
+							color = (255, 153, 0)
+						point = (point[1]*10,point[0]*10)
+						pygame.draw.circle(screen,color,point,3)
 
 
 		""" for ob in w.obstacles:
