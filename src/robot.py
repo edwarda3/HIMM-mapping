@@ -143,7 +143,7 @@ class Robot:
 			return choice, exclusion
 
 	def getCurPos(self):
-		return (int(self.ypos//10),int(self.xpos//10))
+		return (min(len(self.myMap),max(0,int(self.ypos//10))),min(len(self.myMap[0]),max(0,int(self.xpos//10))))
 
 	#Manhattan distance between @param origin, @param target
 	def aStarHeuristic(self,origin,target):
