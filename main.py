@@ -52,7 +52,7 @@ def getMapFromFile(filepath):
 
 if __name__ == "__main__":
 	w = world.World(wWidth,wHeight)
-	w.addObstaclesFromOccGrid(getMapFromFile("world2.csv"))
+	w.addObstaclesFromOccGrid(getMapFromFile("maze.csv"))
 	rob = robot.Robot(10,10,0,w.x_bound,w.y_bound,perfectRobot)
 	v = [0,0] # <v,theta>
 	

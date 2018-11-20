@@ -71,13 +71,13 @@ class Robot:
 		(row,col) = node
 		val = 0
 		if(row-1>=0):
-			val += self.myMap[row-1][col]
+			val += min(0,self.myMap[row-1][col])
 		if(row+1<len(self.myMap)):
-			val += self.myMap[row+1][col]
+			val += min(0,self.myMap[row+1][col])
 		if(col-1>=0):
-			val += self.myMap[row][col-1]
+			val += min(0,self.myMap[row][col-1])
 		if(col+1<len(self.myMap[row])):
-			val += self.myMap[row][col+1]
+			val += min(0,self.myMap[row][col+1])
 		return val
 
 	# Finds a suitable node for the target of A*.
