@@ -49,19 +49,19 @@ class Robot:
 	def getMap(self):
 		for row in range(len(self.myMap)):
 			for col in range(len(self.myMap[row])):
-				if(self.myMap[row][col]<5 and self.myMap[row][col] >=0):
+				if(self.myMap[row][col]<.2 and self.myMap[row][col] >=0):
 					if(not (row,col) in self.map):
 						self.map[(row,col)] = []
-					if(row-1>=0 and self.myMap[row-1][col] <5 and self.myMap[row-1][col] >=0):
+					if(row-1>=0 and self.myMap[row-1][col] <.2 and self.myMap[row-1][col] >=0):
 						if(not (row-1,col) in self.map[(row,col)]):
 							self.map[(row,col)].append((row-1,col))
-					if(row+1<len(self.myMap) and self.myMap[row+1][col] <5 and self.myMap[row+1][col] >=0):
+					if(row+1<len(self.myMap) and self.myMap[row+1][col] <.2 and self.myMap[row+1][col] >=0):
 						if(not (row+1,col) in self.map[(row,col)]):
 							self.map[(row,col)].append((row+1,col))
-					if(col-1>=0 and self.myMap[row][col-1] <5 and self.myMap[row][col-1] >=0):
+					if(col-1>=0 and self.myMap[row][col-1] <.2 and self.myMap[row][col-1] >=0):
 						if(not (row,col-1) in self.map[(row,col)]):
 							self.map[(row,col)].append((row,col-1))
-					if(col+1<len(self.myMap[row]) and self.myMap[row][col+1] <5 and self.myMap[row][col+1] >=0):
+					if(col+1<len(self.myMap[row]) and self.myMap[row][col+1] <.2 and self.myMap[row][col+1] >=0):
 						if(not (row,col+1) in self.map[(row,col)]):
 							self.map[(row,col)].append((row,col+1))
 
@@ -92,8 +92,10 @@ class Robot:
 		for row in range(len(self.myMap)):
 			for col in range(len(self.myMap[row])):
 				# Only allow candidates if the tile is open and known.
-				if(self.myMap[row][col]<5 and self.myMap[row][col] >=0):
+				if(self.myMap[row][col]<.2 and self.myMap[row][col] >=0):
 					importance = self.aggVal((row,col))
+					if(importance > 0 and importance < .5):
+						importance = 0
 					if(not importance in self.candidates):
 						self.candidates[importance] = []
 					self.candidates[importance].append((row,col))
@@ -254,17 +256,24 @@ class Robot:
 			# We use HIMM here, breaking the map into discrete bins and having values from 0-15 here. Although this is originally meant for saving space by having each value be half a bit, they will be floating point values here because we can afford it. Getting a signal that something is there will increment that bin by 1 and stop. If we pass through, then we decrement that bin by 0.5. The probability can be thought of as bin/15.
 			while(x < world.x_bound and x > 0 and y<world.y_bound and y>0):
 				if(self.myMap[int(y//10)][int(x//10)] ==-1):
-					self.myMap[int(y//10)][int(x//10)] = 7
+					self.myMap[int(y//10)][int(x//10)] = .5
+				s_pzm = .9
+				s_pnzm = 1-s_pzm
+				s_pnznm = .95
+				s_pznm = 1-s_pnznm
 				if(world.isInObstacle(x,y,self.perfectRobot)):
-					self.myMap[int(y//10)][int(x//10)] = min(self.myMap[int(y//10)][int(x//10)]+2, 15)
+					pm = self.myMap[int(y//10)][int(x//10)]
+					m_pmz = (s_pzm*pm)/((s_pzm*pm) + (s_pznm*(1-pm)))
+					self.myMap[int(y//10)][int(x//10)] = m_pmz
 					break
 				else:
-					self.myMap[int(y//10)][int(x//10)] = max(self.myMap[int(y//10)][int(x//10)]-2, 0)
+					pm = self.myMap[int(y//10)][int(x//10)]
+					m_pmnz = (s_pnzm*pm)/((s_pnzm*pm) + (s_pnznm*(1-pm)))
+					self.myMap[int(y//10)][int(x//10)] = m_pmnz
 				x += 5*math.cos(a)
 				y += 5*math.sin(a)
 
 			curAngle += angleStep
-		self.gotNewInfo = True
 
 	# returns an array of points that can be passed into pygame.draw.polygon()
 	def get_drawable_poly(self):

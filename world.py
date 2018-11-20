@@ -39,7 +39,7 @@ class World:
 		for ob in self.obstacles:
 			if(x >= ob[0][0] and x <= ob[1][0] and y >= ob[0][1] and y <= ob[1][1]): #if actually in an obstacle
 				if(not perfect):
-					if(random.random()<.95): # add some uncertainly to make it more realistic
+					if(random.random()<.9): # add some uncertainly to make it more realistic
 						return True
 					else:
 						return False
@@ -48,14 +48,14 @@ class World:
 		for mob in self.movingObstacles:
 			if(mob.isInMe(x,y)): #if in an moving obstacle
 				if(not perfect):
-					if(random.random()<.95): # add some uncertainly to make it more realistic
+					if(random.random()<.9): # add some uncertainly to make it more realistic
 						return True
 					else:
 						return False
 				else:
 					return True
 		if(not perfect):
-			if(random.random() < .99): # if the sensor doesnt see anything, p=.9 to report properly
+			if(random.random() < .95): # if the sensor doesnt see anything, p=.9 to report properly
 				return False
 			else:
 				return True

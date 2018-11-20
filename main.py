@@ -94,10 +94,10 @@ if __name__ == "__main__":
 		for y in range(len(rob.myMap)):
 			for x in range(len(rob.myMap[y])):
 				mapvis = pygame.Rect((x*10,y*10),(10,10))
-				wallprob = int(rob.myMap[y][x] * 10)
-				if(wallprob < 50 and wallprob > 0): wallprob = 0 #Color smoothing
+				wallprob = int(rob.myMap[y][x] * 100)
+				if(wallprob < 20 and wallprob > 0): wallprob = 0 #Color smoothing
 				color = (160-wallprob,160-wallprob,160-wallprob)
-				if(wallprob == -10):
+				if(wallprob == -100):
 					color = (160,100,100)
 				pygame.draw.rect(screen,color,mapvis,0)
 
