@@ -1,5 +1,7 @@
 import sys
 import pygame
+import argparse
+import os
 
 ROWS = 30
 COLS = 40
@@ -30,7 +32,18 @@ def strGrid(grid):
 		string+='\n'
 	return string
 
+def writeToFile(string, filepath):
+	f = open(filepath, "a")
+	f.write(string) 
+
+
 if __name__ == "__main__":
+	parser = argparse.ArgumentParser()
+	parser.add_argument("outfile", help="Specify the output file")
+	args=parser.parse_args()
+	ofile = args.outfile
+	cwd = os.getcwd()
+
 	pygame.init()
 	pygame.font.init()
 	myfont = pygame.font.SysFont('Ariel', 12)
@@ -48,7 +61,7 @@ if __name__ == "__main__":
 			if(event.type == pygame.KEYDOWN):
 				if(event.key == pygame.K_SPACE):
 					grid = getGrid(screen)
-					print(strGrid(grid))
+					writeToFile(strGrid(grid), cwd+"/"+ofile)
 
 		(x,y) = pygame.mouse.get_pos()
 		row = x//PIXELDIM
