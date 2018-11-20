@@ -1,6 +1,10 @@
 **Mapping with exploration policy**
+
 *Author: Alex Edwards*
+
 *Date: Nov 19 2018*
+
+
 Description:
 
 This program implements a simulated robot using pygame which has imperfect sensors. It reads in a world file, which is an occupancy grid, and starting at (10,10), will start to explore the world. The world is mapped using Histogramic in-motion mapping (HIMM) and then converted to a map. 
