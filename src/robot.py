@@ -170,7 +170,7 @@ class Robot:
 
 			# Expand the lowest cost leaf node to reveal more leaf nodes.
 			for next in self.map[current]:
-				foundcost = 1+cost[current] 	# since edge costs are 1, cost from current to next is 1
+				foundcost = self.aStarHeuristic(current,next)+cost[current] 	
 
 				if(next not in cost or foundcost<cost[next]):	# We only want to add the frontier node again if its cheaper. Otherwise, add it if we havent seen this node yet.
 					cost[next] = foundcost		# If it is cheaper, use this as the cost. If its the first time, use it as the cost.
