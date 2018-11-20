@@ -64,6 +64,18 @@ class Robot:
 					if(col+1<len(self.myMap[row]) and self.myMap[row][col+1] <5 and self.myMap[row][col+1] >=0):
 						if(not (row,col+1) in self.map[(row,col)]):
 							self.map[(row,col)].append((row,col+1))
+					if(row-1>=0 and col-1>=0 and self.myMap[row-1][col-1] <5 and self.myMap[row-1][col-1] >=0):
+						if(not (row-1,col-1) in self.map[(row,col)] and (row-1,col) in self.map[(row,col)] and (row,col-1) in self.map[(row,col)]):
+							self.map[(row,col)].append((row-1,col-1))
+					if(row-1>=0 and col+1<len(self.myMap[row]) and self.myMap[row-1][col+1] <5 and self.myMap[row-1][col+1] >=0):
+						if(not (row-1,col+1) in self.map[(row,col)] and (row-1,col) in self.map[(row,col)] and (row,col+1) in self.map[(row,col)]):
+							self.map[(row,col)].append((row-1,col+1))
+					if(row+1<len(self.myMap) and col+1<len(self.myMap[row]) and self.myMap[row+1][col+1] <5 and self.myMap[row+1][col+1] >=0):
+						if(not (row+1,col+1) in self.map[(row,col)] and (row+1,col) in self.map[(row,col)] and (row,col+1) in self.map[(row,col)]):
+							self.map[(row,col)].append((row+1,col+1))
+					if(row+1<len(self.myMap) and col-1>=0 and self.myMap[row+1][col-1] <5 and self.myMap[row+1][col-1] >=0):
+						if(not (row+1,col-1) in self.map[(row,col)] and (row+1,col) in self.map[(row,col)] and (row,col-1) in self.map[(row,col)]):
+							self.map[(row,col)].append((row+1,col-1))
 
 	#Calculcates the rank of a tile as defined in getNodeWithMostUnexplored.
 	#negative = more unexplored
