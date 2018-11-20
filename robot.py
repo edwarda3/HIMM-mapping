@@ -106,21 +106,24 @@ class Robot:
 						self.candidates[i].remove(badnode)
 
 		#Get the nearest node with the highest rank.
-		for i in range(-2,0):
-			if(i in self.candidates):
-				if(len(self.candidates[i]) > 0):
-					#print("Candidates["+str(i)+"] is choosing from "+str(len(self.candidates[i])))
-					#print("Candidates: \n"+str(self.candidates[i])+"\nexcluding:\n"+str(exclusion))
-					shortestpoint = self.candidates[i][0]
-					smallestdist = self.aStarHeuristic(start,shortestpoint)
-					for point in self.candidates[i]:
-						dist = self.aStarHeuristic(start,point)
-						if(dist < smallestdist):
-							smallestdist = dist
-							shortestpoint = point
-					choice = shortestpoint
-					#print("New target: "+str(choice))
-					return choice, exclusion
+		listCand = []
+		if(-2 in self.candidates):
+			listCand.extend(self.candidates[-2])
+		if(-1 in self.candidates):
+			listCand.extend(self.candidates[-1])
+		if(len(listCand) > 0):
+			#print("Candidates["+str(i)+"] is choosing from "+str(len(self.candidates[i])))
+			#print("Candidates: \n"+str(self.candidates[i])+"\nexcluding:\n"+str(exclusion))
+			shortestpoint = listCand[0]
+			smallestdist = self.aStarHeuristic(start,shortestpoint)
+			for point in listCand:
+				dist = self.aStarHeuristic(start,point)
+				if(dist < smallestdist):
+					smallestdist = dist
+					shortestpoint = point
+			choice = shortestpoint
+			#print("New target: "+str(choice))
+			return choice, exclusion
 		#If 0 is the highest rank, just random.
 		if(not -1 in self.candidates and not -2 in self.candidates):
 			choice = random.choice(self.candidates[0])

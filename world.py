@@ -17,6 +17,15 @@ class World:
 		else:
 			return False
 
+	def addObstaclesFromOccGrid(self,occgrid):
+		gridsize = 20
+		for row in range(len(occgrid)):
+			for col in range(len(occgrid[row])):
+				if(occgrid[row][col] == 1):
+					point1 = (col*gridsize,row*gridsize)
+					point2 = (col*gridsize+gridsize,row*gridsize+gridsize)
+					self.addObstacle(point1,point2)
+
 	def addMovingObstacle(self, point1, point2, endpoint1, endpoint2, speed):
 		if(point1[0] < point2[0] and point1[1] < point2[1]):
 			mo = mObstacle.mObstacle(point1,point2,endpoint1,endpoint2,speed)

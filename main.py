@@ -27,10 +27,33 @@ def addObs(world):
 	world.addObstacle((600,300),(700,350))
 	world.addObstacle((600,0),(800,50))
 
+def getMapFromFile(filepath):
+	rows,cols = 30,40
+	data = ""
+	occgrid = [[0 for _ in range(cols)] for _ in range(rows)]
+
+	#boilerplace read file
+	print("Reading file... ", end = '')
+	try:
+		myfile = open(filepath,'r')
+	except IOError:
+		print("Failed to read file!")
+		sys.exit()
+	with myfile:
+		data = myfile.read()
+
+	#change occupancy grid from string to matrix 
+	for i in range(len(data)):
+		if(data[i]=='1'):
+			occgrid[(i//2)//cols][(i//2)%cols] = 1
+		if(data[i]=='0'):
+			occgrid[(i//2)//cols][(i//2)%cols] = 0
+	return occgrid
+
 if __name__ == "__main__":
 	w = world.World(wWidth,wHeight)
-	addObs(w)
-	rob = robot.Robot(380,220,0,w.x_bound,w.y_bound,perfectRobot)
+	w.addObstaclesFromOccGrid(getMapFromFile("world2.csv"))
+	rob = robot.Robot(10,10,0,w.x_bound,w.y_bound,perfectRobot)
 	v = [0,0] # <v,theta>
 	
 	pygame.init()
