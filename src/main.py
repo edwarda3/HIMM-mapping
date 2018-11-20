@@ -36,7 +36,6 @@ def getMapFromFile(filepath):
 
 	#boilerplace read file
 	print("Reading file... ", end = '')
-	print(filepath)
 	try:
 		myfile = open(filepath,'r')
 	except IOError:
@@ -44,7 +43,7 @@ def getMapFromFile(filepath):
 		sys.exit()
 	with myfile:
 		data = myfile.read()
-
+	print("Done!")
 	#change occupancy grid from string to matrix 
 	for i in range(len(data)):
 		if(data[i]=='1'):

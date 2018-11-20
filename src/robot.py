@@ -154,7 +154,7 @@ class Robot:
 	# Implementation of A* search, copied from HW4, with one modification.
 	# This function allows a lost of nodes to exclude from searching, as they may not have a path to them. This allows A* to call itself with a new target in case it couldn't find the one given.
 	def astar(self,start,target, ex):
-		print("Finding a way from "+str((start)) + " to " + str((target)))
+		#print("Finding a way from "+str((start)) + " to " + str((target)))
 		unvisited = []	# Contains the frontier, these nodes will have a estimated cost associated with them, which is the real cost that we found, + estimated cost from the heuristic. We will use a heapq, which is a priority queue implementation.
 		backtrack = {}
 		
@@ -177,11 +177,10 @@ class Robot:
 					estcost = cost[next] + self.aStarHeuristic(next,target)
 					heapq.heappush(unvisited,(estcost,next))
 					backtrack[next] = current	# Update the backtrack queue to store our paths.
-					""" if(next==target):
-						print("\tPotential to get to target: " +str(current) + "->"+str(next)) """
+					
 
 		if(not target in backtrack):
-			print("Could not find a way to "+ str(target)+", adding to exclusion and finding new goal")
+			#print("Could not find a way to "+ str(target)+", adding to exclusion and finding new goal")
 			ex.append(target)
 			newtarget, ex = self.getNodeWithMostUnexplored(start,ex)
 			return self.astar(start,newtarget,ex)
@@ -217,7 +216,7 @@ class Robot:
 	# A wrapper function to call other functions.
 	# Will Update the map, get a new target node, get a path between the current pos and target, and refine that backtrack list from A* into an actual list for navstack to use.
 	def getNewRoute(self):
-		print("---\nGetting a new route...\n\n")
+		#"---\nGetting a new route...\n\n")
 		self.getMap()
 		curPos = self.getCurPos()
 		#print("My Current Position: "+str(curPos))
