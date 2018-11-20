@@ -1,3 +1,9 @@
+# Title: Mapping with exploration policy
+# Author: Alex Edwards
+# Date: Nov 19 2018
+# Description:
+#	This program implements a simulated robot using pygame which has imperfect sensors. It reads in a world file, which is an occupancy grid, and starting at (10,10), will start to explore the world. The world is mapped using Histogramic in-motion mapping (HIMM) and then converted to a map. We find a node to travel using a nearest neighbor filter on nodes that have a nonzero number of unknowns. The robot then takes that target node and runs A* search to find a way to get there. Using the function in Robot.moveToPoint(), we can store a list of points in the robot's navstack object and it will move to those points in order. Once it gets to the target, it recalculates a graph representation of a map based on the HIMM map, and repeats.
+
 import pygame
 import sys
 import time
@@ -9,6 +15,7 @@ import robot
 
 wWidth = 800
 wHeight = 600
+s_legend = 300
 
 # If perfectRobot is true, then the sensor data has no error.
 perfectRobot = False
@@ -50,6 +57,52 @@ def getMapFromFile(filepath):
 			occgrid[(i//2)//cols][(i//2)%cols] = 0
 	return occgrid
 
+def text_objects(text, font):
+    textSurface = font.render(text, True, (0,0,0))
+    return textSurface, textSurface.get_rect()
+
+def message_display(screen,text,font,x,y):
+    TextSurf, TextRect = text_objects(text, font)
+    TextRect.top = y
+    TextRect.left = x
+    screen.blit(TextSurf, TextRect)
+
+def drawLegend(screen,font):
+	leftOffset = wWidth+30
+	topOffset = 100
+
+	bigfont = pygame.font.SysFont('Ariel', 40)
+	message_display(screen,"Legend", bigfont, leftOffset+15,50)
+	
+	# Unknown tiles
+	pygame.draw.rect(screen,(160,100,100),pygame.Rect(leftOffset,topOffset,10,10),0)
+	message_display(screen,"Unknown Tiles", font, leftOffset+30,topOffset)
+
+	for i in range(15):
+		pygame.draw.rect(screen,(160-(i*10),160-(i*10),160-(i*10)),pygame.Rect(leftOffset+(i*10),topOffset+50,10,10),0)
+	message_display(screen,"Occupancy Grid", font, leftOffset,topOffset+65)
+	message_display(screen,"Darker = Wall", font, leftOffset,topOffset+80)
+	
+	pygame.draw.line(screen,(20,50,160),(leftOffset,topOffset+125),(leftOffset+20,topOffset+125),1)
+	message_display(screen,"Map Edge", font, leftOffset+40,topOffset+120)
+
+	pygame.draw.line(screen,(20,160,50),(leftOffset,topOffset+185),(leftOffset+20,topOffset+185),1)
+	message_display(screen,"Active Path", font, leftOffset+40,topOffset+180)
+
+	pygame.draw.circle(screen,(160,20,50),(leftOffset+3,topOffset+245),6)
+	message_display(screen,"Active Target", font, leftOffset+20,topOffset+240)
+
+	pygame.draw.circle(screen,(255, 102, 0),(leftOffset+3,topOffset+305),6)
+	message_display(screen,">2 Adjacent Unknowns", font, leftOffset+20,topOffset+300)
+	message_display(screen,"Candidate for target", font, leftOffset+25,topOffset+315)
+
+	pygame.draw.circle(screen,(255, 153, 0),(leftOffset+3,topOffset+365),6)
+	message_display(screen,"1 Adjacent Unknown", font, leftOffset+20,topOffset+360)
+	message_display(screen,"Candidate for target", font, leftOffset+25,topOffset+375)
+
+
+	#message_display(screen,"© Alex Edwards, 2018", font, wWidth+s_legend-170,wHeight-20)
+
 if __name__ == "__main__":
 	w = world.World(wWidth,wHeight)
 	w.addObstaclesFromOccGrid(getMapFromFile("maze.csv"))
@@ -58,12 +111,14 @@ if __name__ == "__main__":
 	
 	pygame.init()
 	pygame.font.init()
-	myfont = pygame.font.SysFont('Ariel', 12)
-	screen = pygame.display.set_mode((w.x_bound,w.y_bound))
+	myfont = pygame.font.SysFont('Ariel', 20)
+	screen = pygame.display.set_mode((w.x_bound+s_legend,w.y_bound))
+
+	screen.fill((220,220,220))
+	drawLegend(screen,myfont)
 
 	rob.get_sensor_readings(w)
 	while(True):
-		screen.fill((220,220,220))
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				pygame.quit() 
